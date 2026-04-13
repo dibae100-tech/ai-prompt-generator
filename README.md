@@ -8,6 +8,8 @@
 
 fth korea
 
+Copyright since 2017 fth-korea.
+
 ## 주요 기능
 
 - 스택 선택 기반 프롬프트 자동 생성
