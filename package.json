@@ -2,6 +2,7 @@
   "name": "ai-prompt-generator",
   "version": "1.0.0",
   "description": "AI 개발 환경 프롬프트 생성기 웹앱",
+  "author": "fth korea",
   "main": "app.js",
   "type": "commonjs",
   "scripts": {
