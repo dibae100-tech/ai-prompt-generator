@@ -1,0 +1,24 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <a href="/prompt" class="brand-link">
+    <i class="fas fa-robot brand-image ml-3 mt-1"></i>
+    <span class="brand-text font-weight-light">AI Prompt</span>
+  </a>
+  <div class="sidebar">
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
+        <li class="nav-item">
+          <a href="/prompt" class="nav-link <%= activeMenu === 'prompt' ? 'active' : '' %>">
+            <i class="nav-icon fas fa-magic"></i>
+            <p>프롬프트 생성</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/template" class="nav-link <%= activeMenu === 'template' ? 'active' : '' %>">
+            <i class="nav-icon fas fa-file-archive"></i>
+            <p>템플릿 관리</p>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</aside>

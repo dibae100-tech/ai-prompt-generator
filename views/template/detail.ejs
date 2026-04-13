@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><%= template.name %></h3></div>
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-3">프로젝트유형</dt>
+          <dd class="col-sm-9"><%= template.project_type %></dd>
+          <dt class="col-sm-3">버전</dt>
+          <dd class="col-sm-9"><%= template.version %></dd>
+          <dt class="col-sm-3">등록일</dt>
+          <dd class="col-sm-9"><%= template.created_at.toISOString().slice(0, 10) %></dd>
+          <dt class="col-sm-3">파일크기</dt>
+          <dd class="col-sm-9"><%= formatBytes(Number(template.file_size)) %></dd>
+          <dt class="col-sm-3">다운로드수</dt>
+          <dd class="col-sm-9"><%= template.download_count %></dd>
+        </dl>
+        <div class="mb-3">
+          <% (template.ui_stack || []).forEach(function(stack) { %>
+            <span class="badge badge-info badge-stack"><%= stack %></span>
+          <% }) %>
+        </div>
+        <div><%- template.description || '' %></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">파일 정보</h3></div>
+      <div class="card-body">
+        <p>파일명: <%= template.file_name %></p>
+        <a href="/template/<%= template.id %>/download" class="btn btn-success btn-block">다운로드</a>
+        <a href="/prompt?template_id=<%= template.id %>" class="btn btn-primary btn-block">이 템플릿으로 프롬프트 생성</a>
+      </div>
+    </div>
+  </div>
+</div>

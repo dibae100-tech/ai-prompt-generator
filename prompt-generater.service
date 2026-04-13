@@ -1,0 +1,16 @@
+[Unit]
+Description=AI Prompt Generator Express Service
+After=network.target mysql.service mariadb.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/ai-prompt-generator
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node app.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,80 @@
+@font-face {
+  font-family: "ONE Mobile";
+  src: url("/public/fonts/ONE%20Mobile%20OTF%20Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ONE Mobile";
+  src: url("/public/fonts/ONE%20Mobile%20OTF%20Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ONE Mobile";
+  src: url("/public/fonts/ONE%20Mobile%20OTF%20Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.main-header,
+.main-sidebar,
+.content-wrapper,
+.modal,
+.swal2-popup,
+.select2-container {
+  font-family: "ONE Mobile", "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+}
+
+.prompt-preview {
+  min-height: 520px;
+  resize: vertical;
+  font-family: Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+}
+
+.prompt-code {
+  min-height: 520px;
+  white-space: pre-wrap;
+}
+
+.stack-section {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.stack-section:last-child {
+  border-bottom: 0;
+}
+
+.dropzone {
+  background: #f8f9fa;
+  border: 2px dashed #6c757d;
+  border-radius: 8px;
+}
+
+.sticky-result {
+  position: sticky;
+  top: 1rem;
+}
+
+.badge-stack {
+  margin-bottom: .25rem;
+  margin-right: .25rem;
+}
+
+.zip-preview {
+  max-height: 160px;
+  overflow: auto;
+}

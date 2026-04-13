@@ -1,0 +1,46 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">템플릿 목록</h3>
+    <div class="card-tools">
+      <a href="/template/create" class="btn btn-primary btn-sm">+ 새 템플릿 등록</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <select id="filter-project-type" class="form-control select2">
+          <option value="">전체 프로젝트 유형</option>
+          <% ['관리자 대시보드', '일반 웹사이트', 'REST API 서버', '쇼핑몰', '커뮤니티/게시판', '사내 업무 시스템'].forEach(function(type) { %>
+            <option value="<%= type %>"><%= type %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select id="filter-framework" class="form-control select2">
+          <option value="">전체 프레임워크</option>
+          <% ['Node.js + Express', 'NestJS', 'Laravel', 'FastAPI', 'Spring Boot'].forEach(function(item) { %>
+            <option value="<%= item %>"><%= item %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="button" id="template-search-button" class="btn btn-secondary btn-block">검색</button>
+      </div>
+    </div>
+    <table id="template-table" class="table table-bordered table-striped">
+      <thead>
+      <tr>
+        <th>No</th>
+        <th>템플릿명</th>
+        <th>프로젝트유형</th>
+        <th>프레임워크</th>
+        <th>버전</th>
+        <th>파일크기</th>
+        <th>다운로드수</th>
+        <th>등록일</th>
+        <th>관리</th>
+      </tr>
+      </thead>
+    </table>
+  </div>
+</div>

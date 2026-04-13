@@ -1,0 +1,105 @@
+<div class="row">
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">스택 선택</h3></div>
+      <div class="card-body">
+        <form id="prompt-form">
+          <div class="stack-section">
+            <h5>Step 1. 프로젝트 유형</h5>
+            <% ['관리자 대시보드', '일반 웹사이트', 'REST API 서버', '쇼핑몰', '커뮤니티/게시판', '사내 업무 시스템'].forEach(function(type, index) { %>
+              <div class="custom-control custom-radio">
+                <input class="custom-control-input prompt-input" type="radio" id="project-<%= index %>" name="project_type" value="<%= type %>" <%= index === 0 ? 'checked' : '' %>>
+                <label for="project-<%= index %>" class="custom-control-label"><%= type %></label>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="stack-section">
+            <h5>Step 2. Frontend UI 스택</h5>
+            <% const frontendFields = [
+              ['dashboard', '대시보드 레이아웃', ['AdminLTE 3', 'Tabler', 'CoreUI', '없음']],
+              ['alert', '알림/팝업', ['SweetAlert2', 'Toastr', 'iziToast', 'Notiflix', '없음']],
+              ['table', '테이블', ['DataTables', 'AG Grid', 'Tabulator', '없음']],
+              ['chart', '차트', ['ApexCharts', 'Chart.js', 'ECharts', '없음']],
+              ['datepicker', '날짜선택', ['Flatpickr', 'DateRangePicker', 'tempus-dominus', '없음']],
+              ['select', '드롭다운', ['Select2', 'Tom Select', 'Choices.js', '없음']],
+              ['editor', '에디터', ['Summernote', 'TinyMCE', 'Quill', '없음']],
+              ['uploader', '파일업로드', ['Dropzone.js', 'FilePond', '없음']]
+            ]; %>
+            <% frontendFields.forEach(function(field) { %>
+              <div class="form-group">
+                <label><%= field[1] %></label>
+                <select class="form-control select2 prompt-input" data-stack-group="frontend" data-stack-key="<%= field[0] %>">
+                  <% field[2].forEach(function(item) { %>
+                    <option value="<%= item %>"><%= item %></option>
+                  <% }) %>
+                </select>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="stack-section">
+            <h5>Step 3. Backend 스택</h5>
+            <% const backendFields = [
+              ['framework', '런타임/프레임워크', ['Node.js + Express', 'NestJS', 'Laravel', 'FastAPI', 'Spring Boot']],
+              ['database', '데이터베이스', ['MySQL', 'PostgreSQL', 'MongoDB', 'SQLite']],
+              ['orm', 'ORM', ['Sequelize', 'Prisma', 'TypeORM', 'Mongoose', 'Eloquent', '없음']],
+              ['api', 'API 방식', ['REST API', 'GraphQL', 'WebSocket', 'gRPC']],
+              ['auth', '인증방식', ['JWT', 'Session', 'OAuth2', 'SSO']],
+              ['cache', '캐시', ['Redis', 'Memcached', '없음']],
+              ['storage', '파일스토리지', ['AWS S3', '로컬', 'GCS', '없음']],
+              ['queue', '큐/비동기', ['Bull Queue', 'Celery', 'Redis Queue', '없음']]
+            ]; %>
+            <% backendFields.forEach(function(field) { %>
+              <div class="form-group">
+                <label><%= field[1] %></label>
+                <select class="form-control select2 prompt-input" data-stack-group="backend" data-stack-key="<%= field[0] %>">
+                  <% field[2].forEach(function(item) { %>
+                    <option value="<%= item %>"><%= item %></option>
+                  <% }) %>
+                </select>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="stack-section">
+            <h5>Step 4. 출력 형식</h5>
+            <% [['agents_md', 'AGENTS.md 형식'], ['codex', 'Codex 프롬프트 형식'], ['chatgpt', 'ChatGPT 프롬프트 형식']].forEach(function(format, index) { %>
+              <div class="custom-control custom-radio">
+                <input class="custom-control-input prompt-input" type="radio" id="format-<%= format[0] %>" name="output_format" value="<%= format[0] %>" <%= index === 0 ? 'checked' : '' %>>
+                <label for="format-<%= format[0] %>" class="custom-control-label"><%= format[1] %></label>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="stack-section">
+            <h5>Step 5. 저장된 프리셋 불러오기</h5>
+            <select id="preset-select" class="form-control select2"></select>
+          </div>
+
+          <button type="button" id="generate-button" class="btn btn-primary btn-block">프롬프트 생성하기</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card sticky-result">
+      <div class="card-header"><h3 class="card-title">생성된 프롬프트 미리보기</h3></div>
+      <div class="card-body">
+        <textarea id="prompt-output" class="form-control prompt-preview" rows="20" readonly></textarea>
+        <pre class="mt-3"><code id="prompt-highlight" class="language-markdown prompt-code"></code></pre>
+      </div>
+      <div class="card-footer">
+        <button type="button" id="copy-button" class="btn btn-success">클립보드 복사</button>
+        <button type="button" id="download-button" class="btn btn-info">.md 다운로드</button>
+        <button type="button" id="save-preset-button" class="btn btn-warning">프리셋 저장</button>
+        <button type="button" id="reset-button" class="btn btn-danger">초기화</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.initialPreset = <%- JSON.stringify(initialPreset || null) %>;
+  window.initialTemplate = <%- JSON.stringify(initialTemplate || null) %>;
+</script>

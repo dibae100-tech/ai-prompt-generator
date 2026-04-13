@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <%- include('../partials/header') %>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <div class="content-wrapper">
+    <section class="content-header">
+      <div class="container-fluid">
+        <h1><%= title %></h1>
+      </div>
+    </section>
+    <section class="content">
+      <div class="container-fluid">
+        <%- include('../' + viewPath) %>
+      </div>
+    </section>
+  </div>
+
+  <%- include('../partials/footer') %>
+</div>
+</body>
+</html>
