@@ -25,7 +25,7 @@ const ProjectTemplate = sequelize.define('ProjectTemplate', {
     allowNull: true
   },
   description: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT('long'),
     allowNull: true
   },
   version: {
