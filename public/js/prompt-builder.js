@@ -191,8 +191,11 @@
 
     $(`[name="project_type"][value="${template.project_type}"]`).prop('checked', true);
 
-    if (template.framework && template.framework[0]) {
-      $('[data-stack-group="backend"][data-stack-key="framework"]').val(template.framework[0]).trigger('change.select2');
+    const frameworks = Array.isArray(template.framework) ? template.framework : [];
+    const uiStacks = Array.isArray(template.ui_stack) ? template.ui_stack : [];
+
+    if (frameworks[0]) {
+      $('[data-stack-group="backend"][data-stack-key="framework"]').val(frameworks[0]).trigger('change.select2');
     }
 
     const uiMap = {
@@ -203,12 +206,14 @@
       'Dropzone.js': ['uploader', 'Dropzone.js']
     };
 
-    (template.ui_stack || []).forEach((stack) => {
+    uiStacks.forEach((stack) => {
       const target = uiMap[stack];
       if (target) {
         $(`[data-stack-group="frontend"][data-stack-key="${target[0]}"]`).val(target[1]).trigger('change.select2');
       }
     });
+
+    toast.fire({ icon: 'success', title: '템플릿 설정이 적용되었습니다.' });
   }
 
   function downloadMarkdown() {

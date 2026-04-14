@@ -16,6 +16,41 @@ function makeStackLines(stack, labels) {
     .join('\n');
 }
 
+function normalizeJsonArray(value) {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [value];
+    } catch (err) {
+      return [value];
+    }
+  }
+
+  return [];
+}
+
+function serializeTemplate(template) {
+  if (!template) {
+    return null;
+  }
+
+  const plain = template.get({ plain: true });
+
+  return {
+    ...plain,
+    framework: normalizeJsonArray(plain.framework),
+    ui_stack: normalizeJsonArray(plain.ui_stack)
+  };
+}
+
 function buildPrompt(payload) {
   const frontendLabels = {
     dashboard: '레이아웃',
@@ -137,7 +172,7 @@ async function index(req, res, next) {
       activeMenu: 'prompt',
       viewPath: 'prompt/index',
       initialPreset,
-      initialTemplate
+      initialTemplate: serializeTemplate(initialTemplate)
     });
   } catch (err) {
     return next(err);
