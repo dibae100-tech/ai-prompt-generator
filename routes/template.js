@@ -42,7 +42,7 @@ router.get('/', templateController.index);
 router.get('/create', templateController.create);
 router.get('/list', templateController.list);
 router.post('/upload', upload.single('file'), templateController.upload);
-router.post('/', storeRules, templateController.store);
+router.post('/', upload.none(), storeRules, templateController.store);
 router.get('/:id', templateController.detail);
 router.get('/:id/download', templateController.download);
 router.delete('/:id', templateController.remove);

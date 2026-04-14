@@ -142,7 +142,12 @@
         await Swal.fire('등록 완료', response.message, 'success');
         window.location.href = response.data.redirect_url;
       } catch (xhr) {
-        Swal.fire('등록 실패', xhr.responseJSON?.message || '입력값을 확인하세요.', 'error');
+        const errors = xhr.responseJSON?.data?.errors || [];
+        const detail = errors.length > 0
+          ? errors.map((item) => item.msg || item.path).join('<br>')
+          : xhr.responseJSON?.message || '입력값을 확인하세요.';
+
+        Swal.fire('등록 실패', detail, 'error');
       }
     });
 

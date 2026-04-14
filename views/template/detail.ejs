@@ -6,6 +6,8 @@
         <dl class="row">
           <dt class="col-sm-3">프로젝트유형</dt>
           <dd class="col-sm-9"><%= template.project_type %></dd>
+          <dt class="col-sm-3">프레임워크</dt>
+          <dd class="col-sm-9"><%= framework.join(', ') %></dd>
           <dt class="col-sm-3">버전</dt>
           <dd class="col-sm-9"><%= template.version %></dd>
           <dt class="col-sm-3">등록일</dt>
@@ -16,7 +18,7 @@
           <dd class="col-sm-9"><%= template.download_count %></dd>
         </dl>
         <div class="mb-3">
-          <% (template.ui_stack || []).forEach(function(stack) { %>
+          <% uiStack.forEach(function(stack) { %>
             <span class="badge badge-info badge-stack"><%= stack %></span>
           <% }) %>
         </div>

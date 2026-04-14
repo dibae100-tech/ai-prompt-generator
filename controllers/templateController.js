@@ -21,6 +21,33 @@ function parseArray(value) {
   return Array.isArray(value) ? value : [value];
 }
 
+function normalizeJsonArray(value) {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [value];
+    } catch (err) {
+      return [value];
+    }
+  }
+
+  return [];
+}
+
+function resolveTemplatePath(filePath) {
+  return path.isAbsolute(filePath)
+    ? filePath
+    : path.join(__dirname, '..', filePath);
+}
+
 function formatBytes(bytes) {
   if (!bytes || bytes < 1024) {
     return `${bytes || 0} B`;
@@ -95,7 +122,7 @@ async function list(req, res, next) {
         id: item.id,
         name: item.name,
         project_type: item.project_type,
-        framework: (item.framework || []).join(', '),
+        framework: normalizeJsonArray(item.framework).join(', '),
         version: item.version,
         file_size: formatBytes(Number(item.file_size)),
         download_count: item.download_count,
@@ -115,7 +142,7 @@ async function upload(req, res) {
   }
 
   const data = {
-    file_path: req.file.path,
+    file_path: path.relative(path.join(__dirname, '..'), req.file.path),
     file_name: req.file.originalname,
     file_size: req.file.size,
     zip_preview: []
@@ -166,6 +193,8 @@ async function detail(req, res, next) {
       activeMenu: 'template',
       viewPath: 'template/detail',
       template,
+      uiStack: normalizeJsonArray(template.ui_stack),
+      framework: normalizeJsonArray(template.framework),
       formatBytes
     });
   } catch (err) {
@@ -181,7 +210,7 @@ async function download(req, res, next) {
     }
 
     await template.increment('download_count');
-    return res.download(path.join(__dirname, '..', template.file_path), template.file_name);
+    return res.download(resolveTemplatePath(template.file_path), template.file_name);
   } catch (err) {
     return next(err);
   }
@@ -194,7 +223,7 @@ async function remove(req, res, next) {
       return res.status(404).json(error('템플릿을 찾을 수 없습니다.'));
     }
 
-    await fs.rm(path.join(__dirname, '..', template.file_path), { force: true });
+    await fs.rm(resolveTemplatePath(template.file_path), { force: true });
     await template.destroy();
 
     return res.json(success('템플릿이 삭제되었습니다.'));
