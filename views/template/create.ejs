@@ -1,20 +1,20 @@
-<form id="template-form">
-  <input type="hidden" name="file_path" id="file-path">
-  <input type="hidden" name="file_name" id="file-name">
-  <input type="hidden" name="file_size" id="file-size">
+<form id="template-form" data-action="<%= formAction %>" data-method="<%= formMethod %>" data-mode="<%= mode %>">
+  <input type="hidden" name="file_path" id="file-path" value="<%= template ? template.file_path : '' %>">
+  <input type="hidden" name="file_name" id="file-name" value="<%= template ? template.file_name : '' %>">
+  <input type="hidden" name="file_size" id="file-size" value="<%= template ? template.file_size : '' %>">
   <div class="row">
     <div class="col-md-8">
       <div class="card">
         <div class="card-body">
           <div class="form-group">
             <label>템플릿명</label>
-            <input type="text" name="name" class="form-control" required>
+            <input type="text" name="name" class="form-control" value="<%= template ? template.name : '' %>" required>
           </div>
           <div class="form-group">
             <label>프로젝트 유형</label>
             <select name="project_type" class="form-control select2" required>
               <% ['관리자 대시보드', '일반 웹사이트', 'REST API 서버', '쇼핑몰', '커뮤니티/게시판', '사내 업무 시스템'].forEach(function(type) { %>
-                <option value="<%= type %>"><%= type %></option>
+                <option value="<%= type %>" <%= template && template.project_type === type ? 'selected' : '' %>><%= type %></option>
               <% }) %>
             </select>
           </div>
@@ -22,7 +22,7 @@
             <label>프레임워크/언어</label>
             <select name="framework" class="form-control select2" multiple required>
               <% ['Node.js + Express', 'NestJS', 'Laravel', 'FastAPI', 'Spring Boot'].forEach(function(item) { %>
-                <option value="<%= item %>"><%= item %></option>
+                <option value="<%= item %>" <%= framework.includes(item) ? 'selected' : '' %>><%= item %></option>
               <% }) %>
             </select>
           </div>
@@ -30,30 +30,34 @@
             <label>UI 스택 태그</label>
             <select name="ui_stack" class="form-control select2-tags" multiple>
               <% ['AdminLTE 3', 'SweetAlert2', 'DataTables', 'Select2', 'Dropzone.js', 'highlight.js'].forEach(function(item) { %>
-                <option value="<%= item %>"><%= item %></option>
+                <option value="<%= item %>" <%= uiStack.includes(item) ? 'selected' : '' %>><%= item %></option>
               <% }) %>
             </select>
           </div>
           <div class="form-group">
             <label>설명</label>
-            <textarea name="description" id="description-editor" class="form-control"></textarea>
+            <textarea name="description" id="description-editor" class="form-control"><%= template ? template.description : '' %></textarea>
           </div>
           <div class="form-group">
             <label>버전</label>
-            <input type="text" name="version" class="form-control" placeholder="1.0.0" value="1.0.0">
+            <input type="text" name="version" class="form-control" placeholder="1.0.0" value="<%= template ? template.version : '1.0.0' %>">
           </div>
         </div>
         <div class="card-footer">
-          <button type="button" id="template-save-button" class="btn btn-primary">등록하기</button>
+          <button type="button" id="template-save-button" class="btn btn-primary"><%= mode === 'edit' ? '수정하기' : '등록하기' %></button>
           <button type="button" id="template-cancel-button" class="btn btn-secondary">취소</button>
         </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
-        <div class="card-header"><h3 class="card-title">파일 업로드</h3></div>
+        <div class="card-header"><h3 class="card-title"><%= mode === 'edit' ? '파일 교체' : '파일 업로드' %></h3></div>
         <div class="card-body">
           <div id="template-dropzone" class="dropzone"></div>
+          <% if (template) { %>
+            <p class="mt-3 mb-0">현재 파일: <%= template.file_name %></p>
+            <small class="text-muted">새 파일을 업로드하지 않으면 현재 파일을 유지합니다.</small>
+          <% } %>
           <div id="zip-preview" class="zip-preview mt-3"></div>
         </div>
       </div>

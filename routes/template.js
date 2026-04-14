@@ -38,12 +38,20 @@ const storeRules = [
   body('file_name').trim().notEmpty()
 ];
 
+const updateRules = [
+  body('name').trim().notEmpty().isLength({ max: 100 }),
+  body('project_type').trim().notEmpty().isLength({ max: 50 }),
+  body('version').trim().notEmpty().isLength({ max: 20 })
+];
+
 router.get('/', templateController.index);
 router.get('/create', templateController.create);
 router.get('/list', templateController.list);
 router.post('/upload', upload.single('file'), templateController.upload);
 router.post('/', upload.none(), storeRules, templateController.store);
+router.get('/:id/edit', templateController.edit);
 router.get('/:id', templateController.detail);
+router.put('/:id', upload.none(), updateRules, templateController.update);
 router.get('/:id/download', templateController.download);
 router.delete('/:id', templateController.remove);
 

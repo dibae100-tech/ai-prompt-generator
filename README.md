@@ -191,6 +191,7 @@ http://서버내부IP:8000
 | `/template` | 템플릿 목록 |
 | `/template/create` | 템플릿 등록 |
 | `/template/:id` | 템플릿 상세 |
+| `/template/:id/edit` | 템플릿 수정 |
 
 ## API
 
@@ -215,6 +216,8 @@ http://서버내부IP:8000
 | `POST` | `/template/upload` | 파일 업로드 |
 | `POST` | `/template` | 템플릿 등록 |
 | `GET` | `/template/:id` | 템플릿 상세 |
+| `GET` | `/template/:id/edit` | 템플릿 수정 화면 |
+| `PUT` | `/template/:id` | 템플릿 수정 |
 | `GET` | `/template/:id/download` | 템플릿 다운로드 |
 | `DELETE` | `/template/:id` | 템플릿 삭제 |
 

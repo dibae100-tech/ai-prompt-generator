@@ -72,7 +72,13 @@ async function create(req, res) {
   return res.render('layouts/main', {
     title: '템플릿 등록',
     activeMenu: 'template',
-    viewPath: 'template/create'
+    viewPath: 'template/create',
+    mode: 'create',
+    template: null,
+    framework: [],
+    uiStack: [],
+    formAction: '/template',
+    formMethod: 'POST'
   });
 }
 
@@ -128,6 +134,7 @@ async function list(req, res, next) {
         download_count: item.download_count,
         created_at: item.created_at,
         detail_url: `/template/${item.id}`,
+        edit_url: `/template/${item.id}/edit`,
         download_url: `/template/${item.id}/download`
       }))
     });
@@ -181,6 +188,29 @@ async function store(req, res, next) {
   }
 }
 
+async function edit(req, res, next) {
+  try {
+    const template = await ProjectTemplate.findByPk(req.params.id);
+    if (!template) {
+      return res.status(404).send('템플릿을 찾을 수 없습니다.');
+    }
+
+    return res.render('layouts/main', {
+      title: '템플릿 수정',
+      activeMenu: 'template',
+      viewPath: 'template/create',
+      mode: 'edit',
+      template,
+      framework: normalizeJsonArray(template.framework),
+      uiStack: normalizeJsonArray(template.ui_stack),
+      formAction: `/template/${template.id}`,
+      formMethod: 'PUT'
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function detail(req, res, next) {
   try {
     const template = await ProjectTemplate.findByPk(req.params.id);
@@ -197,6 +227,43 @@ async function detail(req, res, next) {
       framework: normalizeJsonArray(template.framework),
       formatBytes
     });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function update(req, res, next) {
+  try {
+    const template = await ProjectTemplate.findByPk(req.params.id);
+    if (!template) {
+      return res.status(404).json(error('템플릿을 찾을 수 없습니다.'));
+    }
+
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+      return res.status(422).json(error('입력값을 확인하세요.', { errors: result.array() }));
+    }
+
+    const oldFilePath = template.file_path;
+    const nextFilePath = req.body.file_path || oldFilePath;
+
+    await template.update({
+      name: req.body.name,
+      project_type: req.body.project_type,
+      framework: parseArray(req.body.framework),
+      ui_stack: parseArray(req.body.ui_stack),
+      description: req.body.description,
+      version: req.body.version,
+      file_path: nextFilePath,
+      file_name: req.body.file_name || template.file_name,
+      file_size: req.body.file_size || template.file_size
+    });
+
+    if (oldFilePath && nextFilePath !== oldFilePath) {
+      await fs.rm(resolveTemplatePath(oldFilePath), { force: true });
+    }
+
+    return res.json(success('템플릿이 수정되었습니다.', { item: template, redirect_url: `/template/${template.id}` }));
   } catch (err) {
     return next(err);
   }
@@ -238,7 +305,9 @@ module.exports = {
   list,
   upload,
   store,
+  edit,
   detail,
+  update,
   download,
   remove
 };

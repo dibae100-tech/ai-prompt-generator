@@ -43,6 +43,7 @@
           render(row) {
             return [
               `<a class="btn btn-sm btn-info" href="${row.detail_url}">상세</a>`,
+              `<a class="btn btn-sm btn-warning" href="${row.edit_url}">수정</a>`,
               `<a class="btn btn-sm btn-success" href="${row.download_url}">다운로드</a>`,
               `<button class="btn btn-sm btn-danger delete-template" data-id="${row.id}">삭제</button>`
             ].join(' ');
@@ -128,18 +129,21 @@
 
     $('#template-save-button').on('click', async function () {
       const formData = new FormData(document.getElementById('template-form'));
+      const action = $('#template-form').data('action');
+      const method = $('#template-form').data('method');
+      const mode = $('#template-form').data('mode');
       formData.set('description', $('#description-editor').summernote('code'));
 
       try {
         const response = await $.ajax({
-          url: '/template',
-          method: 'POST',
+          url: action,
+          method,
           data: formData,
           processData: false,
           contentType: false
         });
 
-        await Swal.fire('등록 완료', response.message, 'success');
+        await Swal.fire(mode === 'edit' ? '수정 완료' : '등록 완료', response.message, 'success');
         window.location.href = response.data.redirect_url;
       } catch (xhr) {
         const errors = xhr.responseJSON?.data?.errors || [];
@@ -153,7 +157,7 @@
 
     $('#template-cancel-button').on('click', async function () {
       const result = await Swal.fire({
-        title: '등록을 취소하시겠습니까?',
+        title: $('#template-form').data('mode') === 'edit' ? '수정을 취소하시겠습니까?' : '등록을 취소하시겠습니까?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: '이동',

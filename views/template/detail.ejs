@@ -32,6 +32,7 @@
       <div class="card-body">
         <p>파일명: <%= template.file_name %></p>
         <a href="/template/<%= template.id %>/download" class="btn btn-success btn-block">다운로드</a>
+        <a href="/template/<%= template.id %>/edit" class="btn btn-warning btn-block">수정</a>
         <a href="/prompt?template_id=<%= template.id %>" class="btn btn-primary btn-block">이 템플릿으로 프롬프트 생성</a>
       </div>
     </div>
