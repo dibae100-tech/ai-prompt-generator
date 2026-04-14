@@ -1,5 +1,34 @@
 <div class="row">
   <div class="col-md-5">
+    <% if (initialTemplate) { %>
+      <div class="card card-info">
+        <div class="card-header">
+          <h3 class="card-title">선택된 템플릿 사용 방법</h3>
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><strong><%= initialTemplate.name %></strong> 템플릿을 기준으로 프롬프트를 생성합니다.</p>
+          <ol class="mb-3 pl-3">
+            <li>먼저 새 프로젝트 폴더를 만듭니다.</li>
+            <li>아래 템플릿 zip 파일을 새 프로젝트 폴더에 압축 해제합니다.</li>
+            <li>오른쪽에서 생성된 프롬프트를 복사하거나 AGENTS.md로 다운로드합니다.</li>
+            <li>압축 해제한 프로젝트 루트에 AGENTS.md를 넣고 Codex로 개발을 시작합니다.</li>
+          </ol>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">템플릿 파일</dt>
+            <dd class="col-sm-8"><%= initialTemplate.file_name %></dd>
+            <dt class="col-sm-4">프로젝트 유형</dt>
+            <dd class="col-sm-8"><%= initialTemplate.project_type %></dd>
+            <dt class="col-sm-4">프레임워크</dt>
+            <dd class="col-sm-8"><%= initialTemplate.framework.join(', ') || '없음' %></dd>
+          </dl>
+        </div>
+        <div class="card-footer">
+          <a href="/template/<%= initialTemplate.id %>/download" class="btn btn-success btn-sm">템플릿 zip 다운로드</a>
+          <a href="/template/<%= initialTemplate.id %>" class="btn btn-secondary btn-sm">템플릿 상세로 돌아가기</a>
+        </div>
+      </div>
+    <% } %>
+
     <div class="card">
       <div class="card-header"><h3 class="card-title">스택 선택</h3></div>
       <div class="card-body">
