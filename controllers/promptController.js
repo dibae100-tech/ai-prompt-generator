@@ -105,7 +105,7 @@ function buildPrompt(payload) {
     auth: '인증방식',
     cache: '캐시',
     storage: '파일스토리지',
-    queue: '큐/비동기'
+    queue: '큐/비동기/메시징'
   };
 
   if (payload.output_format === 'codex') {

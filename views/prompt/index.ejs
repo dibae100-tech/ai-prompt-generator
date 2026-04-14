@@ -77,7 +77,7 @@
               ['auth', '인증방식', ['JWT', 'Session', 'OAuth2', 'SSO']],
               ['cache', '캐시', ['Redis', 'Memcached', '없음']],
               ['storage', '파일스토리지', ['AWS S3', '로컬', 'GCS', '없음']],
-              ['queue', '큐/비동기', ['Bull Queue', 'Celery', 'Redis Queue', '없음']]
+              ['queue', '큐/비동기/메시징', ['Bull Queue', 'RabbitMQ', 'MQTT', 'Apache Kafka', 'NATS', 'Celery', 'Redis Queue', '없음']]
             ]; %>
             <% backendFields.forEach(function(field) { %>
               <div class="form-group">

@@ -38,6 +38,7 @@ Copyright since 2017 fth-korea.
 - EJS
 - MariaDB
 - Sequelize
+- Bull Queue, RabbitMQ, MQTT, Apache Kafka, NATS 등 메시징/큐 선택 지원
 - Multer
 - express-session
 - express-validator
