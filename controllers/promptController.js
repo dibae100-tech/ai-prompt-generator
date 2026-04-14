@@ -16,6 +16,27 @@ function makeStackLines(stack, labels) {
     .join('\n');
 }
 
+function enabled(value) {
+  return value && value !== '없음';
+}
+
+function completionLines(frontendStack) {
+  const lines = [
+    '- 선택한 모든 UI 라이브러리 초기화 코드 포함',
+    '- PC/태블릿/모바일 화면에서 레이아웃 확인'
+  ];
+
+  if (enabled(frontendStack.alert)) {
+    lines.push(`- 모든 CRUD에 ${frontendStack.alert} confirm/toast 연동`);
+  }
+
+  if (enabled(frontendStack.table)) {
+    lines.push(`- ${frontendStack.table} 초기화 및 Ajax 연동 완료`);
+  }
+
+  return lines;
+}
+
 function normalizeJsonArray(value) {
   if (!value) {
     return [];
@@ -124,13 +145,16 @@ function buildPrompt(payload) {
       '- 인라인 스타일 금지',
       '- 주석은 한국어로 작성',
       '- 반응형 레이아웃과 모바일 UI 필수',
+      '- 선택한 라이브러리만 설치하고 초기화',
+      '- "없음"으로 선택된 항목은 설치, import, CDN 로드, 초기화 금지',
+      '- 실제 기능에 필요 없는 라이브러리는 선택되어 있더라도 도입 금지',
       '- API 응답: { status, message, data } 형식 통일',
       '',
       '[완료 조건]',
       '- 선택한 모든 라이브러리 초기화 코드 포함',
       '- PC/태블릿/모바일 화면에서 레이아웃과 사용성 확인',
-      `- CRUD 전체 ${payload.frontend_stack.alert} 연동`,
-      `- ${payload.frontend_stack.table} Ajax 서버사이드 작동`
+      ...(enabled(payload.frontend_stack.alert) ? [`- CRUD 전체 ${payload.frontend_stack.alert} 연동`] : []),
+      ...(enabled(payload.frontend_stack.table) ? [`- ${payload.frontend_stack.table} Ajax 서버사이드 작동`] : [])
     ].join('\n');
   }
 
@@ -148,6 +172,9 @@ function buildPrompt(payload) {
       `- alert() 대신 ${payload.frontend_stack.alert} 사용`,
       '- 주석은 한국어로 작성',
       '- 반응형 레이아웃과 모바일 UI를 반드시 적용',
+      '- 선택한 라이브러리만 설치하고 초기화',
+      '- "없음"으로 선택된 항목은 사용하지 않음',
+      '- 실제 기능에 필요 없는 라이브러리는 추가하지 않음',
       '- API 응답은 { status, message, data } 형식 통일'
     ].join('\n');
   }
@@ -181,11 +208,15 @@ function buildPrompt(payload) {
     '- 모든 화면은 반응형으로 구현',
     '- 모바일 UI에서 입력폼, 버튼, 테이블, 업로드 영역이 깨지지 않게 구성',
     '',
+    '## 선택 모듈 사용 원칙',
+    '- 선택한 라이브러리만 설치하고 초기화한다',
+    '- 값이 "없음"인 항목은 설치, import, CDN 로드, 초기화 코드를 작성하지 않는다',
+    '- 실제 화면과 기능에서 사용하지 않는 라이브러리는 선택되어 있더라도 도입하지 않는다',
+    '- 단순 화면에 DataTables, Dropzone.js, Summernote 같은 무거운 라이브러리를 불필요하게 넣지 않는다',
+    '- 프로젝트 요구사항이 바뀌어 모듈이 필요해질 때만 추가한다',
+    '',
     '## 완료 조건',
-    '- 선택한 모든 UI 라이브러리 초기화 코드 포함',
-    '- PC/태블릿/모바일 화면에서 레이아웃 확인',
-    `- 모든 CRUD에 ${payload.frontend_stack.alert} confirm/toast 연동`,
-    `- ${payload.frontend_stack.table} 초기화 및 Ajax 연동 완료`
+    ...completionLines(payload.frontend_stack)
   ].join('\n');
 }
 
