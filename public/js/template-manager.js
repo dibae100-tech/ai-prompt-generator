@@ -88,7 +88,6 @@
       return;
     }
 
-    Dropzone.autoDiscover = false;
     $('#description-editor').summernote({ height: 220, placeholder: '템플릿 설명을 입력하세요.' });
 
     const dropzone = new Dropzone('#template-dropzone', {
@@ -100,6 +99,11 @@
       addRemoveLinks: true,
       dictDefaultMessage: '파일을 끌어놓거나 클릭해서 업로드하세요.',
       init() {
+        this.on('maxfilesexceeded', function (file) {
+          this.removeFile(file);
+          Swal.fire('업로드 제한', '파일은 1개만 업로드할 수 있습니다.', 'warning');
+        });
+
         this.on('success', function (file, response) {
           $('#file-path').val(response.data.file_path);
           $('#file-name').val(response.data.file_name);
@@ -113,7 +117,11 @@
         });
 
         this.on('error', function (file, message) {
-          Swal.fire('업로드 실패', typeof message === 'string' ? message : '파일 업로드 중 오류가 발생했습니다.', 'error');
+          const errorMessage = typeof message === 'string'
+            ? message
+            : message?.message || '파일 업로드 중 오류가 발생했습니다.';
+
+          Swal.fire('업로드 실패', errorMessage, 'error');
         });
       }
     });

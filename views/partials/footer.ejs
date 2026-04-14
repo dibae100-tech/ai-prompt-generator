@@ -11,11 +11,15 @@
 <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs4@1.13.8/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dropzone@5.9.3/dist/min/dropzone.min.js"></script>
+<script>
+  // Dropzone 자동 초기화를 끄고 페이지 전용 스크립트에서 명시적으로 초기화합니다.
+  Dropzone.autoDiscover = false;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
 <% if (activeMenu === 'prompt') { %>
-  <script src="/public/js/prompt-builder.js"></script>
+  <script src="/public/js/prompt-builder.js?v=20260414-1"></script>
 <% } %>
 <% if (activeMenu === 'template') { %>
-  <script src="/public/js/template-manager.js"></script>
+  <script src="/public/js/template-manager.js?v=20260414-1"></script>
 <% } %>
