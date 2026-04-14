@@ -9,6 +9,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT || 3306),
+    // Sequelize는 MariaDB 접속에도 mysql 계열 드라이버를 사용할 수 있습니다.
     dialect: 'mysql',
     logging: false,
     timezone: '+09:00',

@@ -37,6 +37,41 @@ function normalizeJsonArray(value) {
   return [];
 }
 
+function normalizeJsonObject(value) {
+  if (!value) {
+    return {};
+  }
+
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  return {};
+}
+
+function serializePreset(preset) {
+  if (!preset) {
+    return null;
+  }
+
+  const plain = preset.get({ plain: true });
+
+  return {
+    ...plain,
+    frontend_stack: normalizeJsonObject(plain.frontend_stack),
+    backend_stack: normalizeJsonObject(plain.backend_stack)
+  };
+}
+
 function serializeTemplate(template) {
   if (!template) {
     return null;
@@ -186,7 +221,7 @@ async function generate(req, res) {
 async function presetList(req, res, next) {
   try {
     const items = await PromptPreset.findAll({ order: [['created_at', 'DESC']] });
-    return res.json(success('프리셋 목록을 불러왔습니다.', { items }));
+    return res.json(success('프리셋 목록을 불러왔습니다.', { items: items.map(serializePreset) }));
   } catch (err) {
     return next(err);
   }
@@ -200,7 +235,8 @@ async function showPreset(req, res, next) {
     }
 
     await preset.increment('use_count');
-    return res.json(success('프리셋을 불러왔습니다.', { item: preset }));
+    await preset.reload();
+    return res.json(success('프리셋을 불러왔습니다.', { item: serializePreset(preset) }));
   } catch (err) {
     return next(err);
   }

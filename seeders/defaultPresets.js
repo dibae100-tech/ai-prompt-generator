@@ -17,7 +17,7 @@ const presets = [
     },
     backend_stack: {
       framework: 'Node.js + Express',
-      database: 'MySQL',
+      database: 'MariaDB',
       orm: 'Sequelize',
       api: 'REST API',
       auth: 'Session',
@@ -42,7 +42,7 @@ const presets = [
     },
     backend_stack: {
       framework: 'Node.js + Express',
-      database: 'MySQL',
+      database: 'MariaDB',
       orm: 'Sequelize',
       api: 'REST API',
       auth: 'JWT',
@@ -67,7 +67,7 @@ const presets = [
     },
     backend_stack: {
       framework: 'Node.js + Express',
-      database: 'MySQL',
+      database: 'MariaDB',
       orm: 'Sequelize',
       api: 'REST API',
       auth: 'Session',
@@ -85,10 +85,30 @@ async function seed() {
     await sequelize.sync({ force: false });
 
     for (const preset of presets) {
-      await PromptPreset.findOrCreate({
+      const [item] = await PromptPreset.findOrCreate({
         where: { name: preset.name },
         defaults: preset
       });
+
+      await item.update(preset);
+    }
+
+    const allPresets = await PromptPreset.findAll();
+
+    for (const preset of allPresets) {
+      const plain = preset.get({ plain: true });
+      const backendStack = typeof plain.backend_stack === 'string'
+        ? JSON.parse(plain.backend_stack)
+        : plain.backend_stack;
+
+      if (backendStack?.database === 'MySQL') {
+        await preset.update({
+          backend_stack: {
+            ...backendStack,
+            database: 'MariaDB'
+          }
+        });
+      }
     }
 
     console.log('기본 프리셋 시드 데이터가 생성되었습니다.');

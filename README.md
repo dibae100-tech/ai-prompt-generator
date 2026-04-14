@@ -36,7 +36,7 @@ Copyright since 2017 fth-korea.
 - Node.js v20+
 - Express.js
 - EJS
-- MySQL 8.0
+- MariaDB
 - Sequelize
 - Multer
 - express-session
@@ -127,9 +127,9 @@ UPLOAD_DIR=uploads/templates
 
 공개 저장소에는 `.env`를 올리지 마세요. `.env.example`만 공유합니다.
 
-## MySQL 준비
+## MariaDB 준비
 
-MySQL에 앱용 데이터베이스를 생성합니다.
+MariaDB에 앱용 데이터베이스를 생성합니다.
 
 ```sql
 CREATE DATABASE ai_prompt_generator
@@ -355,7 +355,7 @@ sudo ufw status
 - `node_modules/`가 저장소에 포함되지 않았는지 확인
 - 업로드된 실제 템플릿 파일이 저장소에 포함되지 않았는지 확인
 - `.env.example`에 예시 값만 남겼는지 확인
-- MySQL 비밀번호, 세션 시크릿 등 민감 정보 제거
+- MariaDB 비밀번호, 세션 시크릿 등 민감 정보 제거
 - `prompt-generater.service`의 사용자/경로가 배포 서버에 맞는지 확인
 
 ## 라이선스
