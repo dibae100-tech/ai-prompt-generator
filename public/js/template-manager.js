@@ -15,6 +15,9 @@
     const table = $('#template-table').DataTable({
       processing: true,
       serverSide: true,
+      columnDefs: [
+        { targets: '_all', className: 'text-center' }
+      ],
       ajax: {
         url: '/template/list',
         data(data) {
