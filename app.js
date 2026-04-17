@@ -9,6 +9,7 @@ require('dotenv').config();
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
 const { sequelize } = require('./models');
+const { DataTypes } = require('sequelize');
 
 const app = express();
 const host = process.env.APP_HOST || '0.0.0.0';
@@ -38,6 +39,23 @@ async function start() {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ force: false });
+    const qi = sequelize.getQueryInterface();
+    const columns = await qi.describeTable('project_templates');
+
+    if (!columns.thumbnail_path) {
+      await qi.addColumn('project_templates', 'thumbnail_path', {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      });
+    }
+
+    if (!columns.thumbnail_name) {
+      await qi.addColumn('project_templates', 'thumbnail_name', {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      });
+    }
+
     app.listen(port, host, () => {
       console.log(`AI Prompt Generator: http://${host}:${port}`);
     });

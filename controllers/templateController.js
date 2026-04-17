@@ -1,5 +1,6 @@
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsp = fs.promises;
 const AdmZip = require('adm-zip');
 const { Op, Sequelize } = require('sequelize');
 const { validationResult } = require('express-validator');
@@ -60,11 +61,92 @@ function formatBytes(bytes) {
   return `${Math.round(bytes / 104857.6) / 10} MB`;
 }
 
+function escapeXml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function projectColor(projectType = '') {
+  const palette = {
+    '관리자 대시보드': ['#1f3c88', '#4a90e2'],
+    '일반 웹사이트': ['#0f766e', '#14b8a6'],
+    'REST API 서버': ['#5b21b6', '#8b5cf6'],
+    '쇼핑몰': ['#b45309', '#f59e0b'],
+    '커뮤니티/게시판': ['#be123c', '#fb7185'],
+    '사내 업무 시스템': ['#0369a1', '#38bdf8']
+  };
+
+  return palette[projectType] || ['#374151', '#9ca3af'];
+}
+
+function buildThumbnailDataUri(template) {
+  if (template?.thumbnail_path) {
+    const filePath = resolveTemplatePath(template.thumbnail_path);
+    try {
+      const buffer = fs.readFileSync(filePath);
+      const ext = path.extname(template.thumbnail_name || template.thumbnail_path).slice(1).toLowerCase();
+      const mimeType = ext === 'jpg' ? 'jpeg' : ext;
+      return `data:image/${mimeType};base64,${buffer.toString('base64')}`;
+    } catch (err) {
+      // 사용자 업로드 썸네일을 읽지 못하면 zip 이미지를 시도합니다.
+    }
+  }
+
+  if (!template?.file_path) {
+    return null;
+  }
+
+  try {
+    const zip = new AdmZip(resolveTemplatePath(template.file_path));
+    const imageEntry = zip.getEntries().find((entry) => {
+      const lower = entry.entryName.toLowerCase();
+      return !entry.isDirectory && /\.(png|jpe?g|gif|webp|svg)$/.test(lower);
+    });
+
+    if (imageEntry) {
+      const buffer = imageEntry.getData();
+      const ext = path.extname(imageEntry.entryName).slice(1).toLowerCase();
+      const mimeType = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+      return `data:${mimeType};base64,${buffer.toString('base64')}`;
+    }
+  } catch (err) {
+    // 이미지가 없거나 zip 읽기에 실패하면 아래 대체 이미지를 사용합니다.
+  }
+
+  const [start, end] = projectColor(template.project_type);
+  const title = escapeXml(template.name || 'Template');
+  const subtitle = escapeXml(template.project_type || 'Project');
+  const framework = escapeXml(normalizeJsonArray(template.framework).join(' · ') || 'No framework');
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="240" height="140" viewBox="0 0 240 140">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${start}" />
+          <stop offset="100%" stop-color="${end}" />
+        </linearGradient>
+      </defs>
+      <rect width="240" height="140" rx="16" fill="url(#bg)" />
+      <rect x="16" y="16" width="208" height="108" rx="12" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.28)" />
+      <text x="28" y="46" fill="#ffffff" font-size="18" font-weight="700" font-family="Arial, sans-serif">${title}</text>
+      <text x="28" y="72" fill="#e5eefc" font-size="12" font-family="Arial, sans-serif">${subtitle}</text>
+      <text x="28" y="98" fill="#f3f4f6" font-size="11" font-family="Arial, sans-serif">${framework}</text>
+      <rect x="28" y="106" width="72" height="10" rx="5" fill="rgba(255,255,255,0.28)" />
+    </svg>
+  `.trim();
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
 async function index(req, res) {
-  return res.render('layouts/main', {
-    title: '템플릿 목록',
-    activeMenu: 'template',
-    viewPath: 'template/index'
+    return res.render('layouts/main', {
+      title: '템플릿 목록',
+      activeMenu: 'template',
+      viewPath: 'template/index'
   });
 }
 
@@ -77,6 +159,7 @@ async function create(req, res) {
     template: null,
     framework: [],
     uiStack: [],
+    thumbnailUrl: null,
     formAction: '/template',
     formMethod: 'POST'
   });
@@ -127,6 +210,7 @@ async function list(req, res, next) {
       data: rows.map((item) => ({
         id: item.id,
         name: item.name,
+        thumbnail_url: buildThumbnailDataUri(item),
         project_type: item.project_type,
         framework: normalizeJsonArray(item.framework).join(', '),
         version: item.version,
@@ -163,6 +247,19 @@ async function upload(req, res) {
   return res.json(success('파일이 업로드되었습니다.', data));
 }
 
+async function uploadThumbnail(req, res) {
+  if (!req.file) {
+    return res.status(422).json(error('썸네일 이미지가 필요합니다.'));
+  }
+
+  return res.json(success('썸네일이 업로드되었습니다.', {
+    thumbnail_path: path.relative(path.join(__dirname, '..'), req.file.path),
+    thumbnail_name: req.file.originalname,
+    thumbnail_size: req.file.size,
+    thumbnail_url: `/uploads/${path.relative(path.join(__dirname, '..', 'uploads'), req.file.path).replace(/\\/g, '/')}`
+  }));
+}
+
 async function store(req, res, next) {
   try {
     const result = validationResult(req);
@@ -179,7 +276,9 @@ async function store(req, res, next) {
       version: req.body.version,
       file_path: req.body.file_path,
       file_name: req.body.file_name,
-      file_size: req.body.file_size
+      file_size: req.body.file_size,
+      thumbnail_path: req.body.thumbnail_path || null,
+      thumbnail_name: req.body.thumbnail_name || null
     });
 
     return res.status(201).json(success('템플릿이 등록되었습니다.', { item: template, redirect_url: '/template' }));
@@ -203,6 +302,7 @@ async function edit(req, res, next) {
       template,
       framework: normalizeJsonArray(template.framework),
       uiStack: normalizeJsonArray(template.ui_stack),
+      thumbnailUrl: buildThumbnailDataUri(template),
       formAction: `/template/${template.id}`,
       formMethod: 'PUT'
     });
@@ -223,6 +323,7 @@ async function detail(req, res, next) {
       activeMenu: 'template',
       viewPath: 'template/detail',
       template,
+      thumbnailUrl: buildThumbnailDataUri(template),
       uiStack: normalizeJsonArray(template.ui_stack),
       framework: normalizeJsonArray(template.framework),
       formatBytes
@@ -246,6 +347,13 @@ async function update(req, res, next) {
 
     const oldFilePath = template.file_path;
     const nextFilePath = req.body.file_path || oldFilePath;
+    const oldThumbnailPath = template.thumbnail_path;
+    const nextThumbnailPath = req.body.thumbnail_clear === '1'
+      ? null
+      : (req.body.thumbnail_path || oldThumbnailPath);
+    const nextThumbnailName = req.body.thumbnail_clear === '1'
+      ? null
+      : (req.body.thumbnail_name || template.thumbnail_name);
 
     await template.update({
       name: req.body.name,
@@ -256,11 +364,17 @@ async function update(req, res, next) {
       version: req.body.version,
       file_path: nextFilePath,
       file_name: req.body.file_name || template.file_name,
-      file_size: req.body.file_size || template.file_size
+      file_size: req.body.file_size || template.file_size,
+      thumbnail_path: nextThumbnailPath,
+      thumbnail_name: nextThumbnailName
     });
 
     if (oldFilePath && nextFilePath !== oldFilePath) {
-      await fs.rm(resolveTemplatePath(oldFilePath), { force: true });
+      await fsp.rm(resolveTemplatePath(oldFilePath), { force: true });
+    }
+
+    if (oldThumbnailPath && nextThumbnailPath !== oldThumbnailPath) {
+      await fsp.rm(resolveTemplatePath(oldThumbnailPath), { force: true });
     }
 
     return res.json(success('템플릿이 수정되었습니다.', { item: template, redirect_url: `/template/${template.id}` }));
@@ -290,7 +404,7 @@ async function remove(req, res, next) {
       return res.status(404).json(error('템플릿을 찾을 수 없습니다.'));
     }
 
-    await fs.rm(resolveTemplatePath(template.file_path), { force: true });
+    await fsp.rm(resolveTemplatePath(template.file_path), { force: true });
     await template.destroy();
 
     return res.json(success('템플릿이 삭제되었습니다.'));
@@ -304,6 +418,7 @@ module.exports = {
   create,
   list,
   upload,
+  uploadThumbnail,
   store,
   edit,
   detail,

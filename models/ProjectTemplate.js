@@ -44,6 +44,14 @@ const ProjectTemplate = sequelize.define('ProjectTemplate', {
     type: DataTypes.BIGINT,
     allowNull: true
   },
+  thumbnail_path: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  thumbnail_name: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   download_count: {
     type: DataTypes.INTEGER,
     defaultValue: 0

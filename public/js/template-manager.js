@@ -27,6 +27,18 @@
       },
       columns: [
         { data: 'id' },
+        {
+          data: null,
+          orderable: false,
+          searchable: false,
+          render(row) {
+            return [
+              '<div class="template-thumb-wrap">',
+              `  <img class="template-thumb" src="${row.thumbnail_url}" alt="${row.name} 썸네일">`,
+              '</div>'
+            ].join('');
+          }
+        },
         { data: 'name' },
         { data: 'project_type' },
         { data: 'framework' },
@@ -128,6 +140,46 @@
           Swal.fire('업로드 실패', errorMessage, 'error');
         });
       }
+    });
+
+    new Dropzone('#thumbnail-dropzone', {
+      url: '/template/upload-thumbnail',
+      paramName: 'file',
+      maxFiles: 1,
+      maxFilesize: 10,
+      acceptedFiles: '.png,.jpg,.jpeg,.gif,.webp,.svg',
+      addRemoveLinks: true,
+      dictDefaultMessage: '썸네일 이미지를 끌어놓거나 클릭해서 업로드하세요.',
+      init() {
+        this.on('maxfilesexceeded', function (file) {
+          this.removeFile(file);
+          Swal.fire('업로드 제한', '썸네일은 1개만 업로드할 수 있습니다.', 'warning');
+        });
+
+        this.on('success', function (file, response) {
+          $('#thumbnail-path').val(response.data.thumbnail_path);
+          $('#thumbnail-name').val(response.data.thumbnail_name);
+          $('#thumbnail-clear').val('0');
+          $('#thumbnail-preview').html(`<img src="${response.data.thumbnail_url}" class="img-fluid rounded template-detail-thumb" alt="썸네일 미리보기">`);
+          toast.fire({ icon: 'success', title: '썸네일 업로드 완료' });
+        });
+
+        this.on('error', function (file, message) {
+          const errorMessage = typeof message === 'string'
+            ? message
+            : message?.message || '썸네일 업로드 중 오류가 발생했습니다.';
+
+          Swal.fire('업로드 실패', errorMessage, 'error');
+        });
+      }
+    });
+
+    $('#thumbnail-clear-button').on('click', function () {
+      $('#thumbnail-path').val('');
+      $('#thumbnail-name').val('');
+      $('#thumbnail-clear').val('1');
+      $('#thumbnail-preview').html('<div class="text-muted">썸네일이 삭제되었습니다. 저장하면 zip 이미지 또는 기본 썸네일이 표시됩니다.</div>');
+      toast.fire({ icon: 'success', title: '삭제 대기 상태로 변경되었습니다.' });
     });
 
     $('#template-save-button').on('click', async function () {
