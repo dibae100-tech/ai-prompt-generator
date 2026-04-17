@@ -21,6 +21,8 @@ Copyright since 2017 fth-korea.
 - 프리셋 저장 및 불러오기
 - 프로젝트 템플릿 업로드 및 관리
 - ZIP 파일 내부 목록 미리보기
+- 템플릿 썸네일 업로드 및 목록/상세 미리보기
+- 썸네일 미등록 시 ZIP 내부 이미지 자동 우선 표시
 - DataTables 서버사이드 Ajax 목록
 - Dropzone.js 파일 업로드
 - Select2 드롭다운 및 태그 입력
@@ -215,6 +217,7 @@ http://서버내부IP:8000
 | `GET` | `/template/create` | 템플릿 등록 화면 |
 | `GET` | `/template/list` | DataTables Ajax 목록 |
 | `POST` | `/template/upload` | 파일 업로드 |
+| `POST` | `/template/upload-thumbnail` | 템플릿 썸네일 업로드 |
 | `POST` | `/template` | 템플릿 등록 |
 | `GET` | `/template/:id` | 템플릿 상세 |
 | `GET` | `/template/:id/edit` | 템플릿 수정 화면 |
@@ -250,7 +253,7 @@ DataTables 서버사이드 응답은 DataTables 규격에 맞춰 `draw`, `record
 
 ## 업로드
 
-템플릿 파일 업로드는 Multer로 처리합니다.
+템플릿 파일 업로드와 썸네일 업로드는 Multer로 처리합니다.
 
 허용 확장자:
 
@@ -272,6 +275,16 @@ uploads/templates/
 ```
 
 ZIP 파일은 `adm-zip`으로 내부 파일 목록을 일부 미리 보여줍니다.
+
+썸네일은 `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg` 이미지만 허용합니다.
+
+썸네일이 등록되지 않은 경우에는 다음 순서로 미리보기를 표시합니다.
+
+1. 템플릿에 직접 업로드한 썸네일
+2. ZIP 파일 안에서 발견한 첫 이미지 파일
+3. 자동 생성된 기본 대체 썸네일
+
+수정 화면에서는 현재 썸네일을 삭제한 뒤 저장할 수 있으며, 삭제 후에는 ZIP 내부 이미지나 기본 썸네일로 다시 표시됩니다.
 
 ## 폰트
 
@@ -358,6 +371,7 @@ sudo ufw status
 - `.env`가 저장소에 포함되지 않았는지 확인
 - `node_modules/`가 저장소에 포함되지 않았는지 확인
 - 업로드된 실제 템플릿 파일이 저장소에 포함되지 않았는지 확인
+- 업로드된 썸네일 이미지가 저장소에 포함되지 않았는지 확인
 - `.env.example`에 예시 값만 남겼는지 확인
 - MariaDB 비밀번호, 세션 시크릿 등 민감 정보 제거
 - `prompt-generater.service`의 사용자/경로가 배포 서버에 맞는지 확인
